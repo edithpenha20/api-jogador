@@ -10,6 +10,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -51,6 +53,43 @@ public class JogadorRepositoryTest {
 
         //verificacao
         assertThat(existe).isFalse();
+    }
+
+    @Test
+    @DisplayName("Deve obter um jogador quando buscar por ID")
+    public void encontrarJogadorPorId(){
+        //cenario
+        Jogador jogador = criarNovoJogador();
+        entityManager.persist(jogador);
+
+        //execucao
+        Optional<Jogador> encontrarJogador = repository.findById(jogador.getId());
+
+        //verificacoes
+        assertThat(encontrarJogador.isPresent()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Deve salvar um jogador")
+    public void salvarJogadorTest(){
+        Jogador jogador = criarNovoJogador();
+
+        Jogador jogadorSalvo = repository.save(jogador);
+
+        assertThat(jogadorSalvo.getId()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Deve deletar um jogador.")
+    public void deletarJogadorTest(){
+        Jogador jogador = criarNovoJogador();
+        entityManager.persist(jogador);
+        Jogador encontrarJogador = entityManager.find(Jogador.class, jogador.getId());
+
+        repository.delete((encontrarJogador));
+
+        Jogador jogadorDeletado = entityManager.find(Jogador.class, jogador.getId());
+        assertThat(jogadorDeletado).isNull();
     }
 
     private Jogador criarNovoJogador() {
